@@ -1,0 +1,29 @@
+﻿@model ShopLite.Models.Order
+
+@{
+    ViewData["Title"] = "Delete Order";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">Delete confirmation</h4>
+    </div>
+    <div class="card-body text-center">
+        <i class="bi bi-exclamation-triangle text-danger display-4 mb-3"></i>
+        <h5 class="fw-bold mb-1">Order #@Model.ID created on @Model.OrderDate.ToString("dd-MM-yyyy")</h5>
+        <h5 class="mb-3">Are you sure you want to delete this order?</h5>
+        <p class="text-muted mb-4">This operation cannot be undone and will cause permament deletion from the database.</p>
+
+        <form asp-action="DeleteOrder" method="post">
+            <input type="hidden" asp-for="ID" />
+            <div class="d-flex justify-content-center gap-3">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

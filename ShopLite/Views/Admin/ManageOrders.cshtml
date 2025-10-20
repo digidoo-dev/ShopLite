@@ -1,0 +1,171 @@
+﻿@model ShopLite.Models.ManageOrdersViewModel
+
+@{
+    ViewData["Title"] = "Manage Orders";
+}
+
+<!-- Sekcja podsumowania -->
+<h2 class="mb-4">Manage Orders</h2>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Orders this month</h5>
+                <h2 class="fw-bold">@Model.MonthOrdersCount</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Total value</h5>
+                <h2 class="fw-bold">@Model.MonthOrdersTotal.ToString("C")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Average order value</h5>
+                <h2 class="fw-bold">@Model.AverageOrderValue.ToString("C")</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Wykres trendu zamówień -->
+<div class="card shadow-sm mb-5">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Orders from last 7 days</h5>
+        <canvas id="ordersChart" height="120"></canvas>
+    </div>
+</div>
+
+<!-- Lista zamówień -->
+<div id="allOrders" class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title mb-3">All Orders</h5>
+
+
+        <!-- Sekcja filtrowania -->
+        <form id="filterForm" asp-action="ManageOrders" method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label for="status" class="form-label text-muted">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">All</option>
+                    <option value="InProgress" selected="@("InProgress" == ViewBag.CurrentStatus)">In progress</option>
+                    <option value="Sent" selected="@("Sent" == ViewBag.CurrentStatus)">Sent</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="dateFrom" class="form-label text-muted">Date from</label>
+                <input type="date" class="form-control" id="dateFrom" name="dateFrom" value="@ViewBag.DateFrom?.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-3">
+                <label for="dateTo" class="form-label text-muted">Date to</label>
+                <input type="date" class="form-control" id="dateTo" name="dateTo" value="@ViewBag.DateTo?.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-3">
+                <label for="orderId" class="form-label text-muted">Order ID</label>
+                <input type="text" class="form-control" id="orderId" name="orderId" placeholder="e.g. 123" value="@ViewBag.OrderId" />
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a asp-action="ManageOrders" class="btn btn-outline-secondary" id="clearFiltersBtn">Clear</a>
+            </div>
+        </form>
+
+        <!-- Tabela wszystkich zamówień -->
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date created</th>
+                        <th>Status</th>
+                        <th>Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td>@order.ID</td>
+                            <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                @if (order.Status == OrderStatus.Sent)
+                                {
+                                    <span class="badge bg-success">Sent</span>
+                                }
+                                else if (order.Status == OrderStatus.InProgress)
+                                {
+                                    <span class="badge bg-warning text-dark">In progress</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">New</span>
+                                }
+                            </td>
+                            <td>@order.TotalPrice.ToString("C")</td>
+                            <td>
+                                <div class="btn-group">
+                                    @if (order.Status != OrderStatus.Sent)
+                                    {
+                                        <form asp-action="MarkOrderAsSent" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@order.ID" />
+                                            <button type="submit" class="btn btn-sm btn-success">Mark as sent</button>
+                                        </form>
+                                    }
+                                    <a asp-action="OrderDetails" asp-route-id="@order.ID" class="btn btn-sm btn-primary">Details</a>
+                                    <form asp-action="DeleteOrder" method="get" class="d-inline">
+                                        <input type="hidden" name="id" value="@order.ID" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('ordersChart');
+        const ordersChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.Last7DaysLabels)),
+                datasets: [{
+                    label: 'Orders count',
+                    data: @Html.Raw(Json.Serialize(Model.Last7DaysCounts)),
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        document.getElementById("filterForm").addEventListener("submit", function() {
+            this.action += "#allOrders";
+        });
+
+        document.getElementById("clearFiltersBtn").addEventListener("click", function() {
+            this.href += "#allOrders";
+        });
+    </script>
+}

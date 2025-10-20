@@ -1,0 +1,92 @@
+﻿@model ShopLite.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2 class="mb-4">Details of Order #@Model.ID</h2>
+
+<!-- Podstawowe informacje -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Order Info</h5>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <p><strong>Date created:</strong> @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
+                <p>
+                    <strong>Status:</strong>
+                    @if (Model.Status == OrderStatus.Sent)
+                    {
+                        <span class="badge bg-success">Sent</span>
+                    }
+                    else if (Model.Status == OrderStatus.InProgress)
+                    {
+                        <span class="badge bg-warning text-dark">In progress</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">New</span>
+                    }
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Order total:</strong> @Model.TotalPrice.ToString("C")</p>
+                <p><strong>Number of items:</strong> @Model.OrderProducts.Count()</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista produktów -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Ordered items</h5>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderProducts)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="img-thumbnail me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <span>@item.Product.Name</span>
+                                </div>
+                            </td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Product.Price.ToString("C")</td>
+                            <td>@((item.Product.Price* item.Quantity).ToString("C"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Akcje -->
+<div class="d-flex justify-content-between">
+    <a asp-action="ManageOrders" class="btn btn-outline-secondary">Back</a>
+
+    <div>
+        @if (Model.Status != OrderStatus.Sent)
+        {
+            <form asp-action="MarkOrderAsSent" method="post" class="d-inline">
+                <input type="hidden" name="id" value="@Model.ID" />
+                <button type="submit" class="btn btn-success">Mark as sent</button>
+            </form>
+        }
+        <form asp-action="DeleteOrder" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.ID" />
+            <button type="submit" class="btn btn-danger">Delete order</button>
+        </form>
+    </div>
+</div>

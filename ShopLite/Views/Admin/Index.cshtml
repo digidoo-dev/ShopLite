@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+
+
+<h1 class="mb-4">Admin Panel</h1>
+
+<div class="row g-4">
+    <!-- Edit Item List -->
+    <div class="col-md-4">
+        <div class="card h-100 text-center shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                <i class="bi bi-card-list display-4 mb-3"></i>
+                <h5 class="card-title">Edit Item List</h5>
+                <p class="card-text">Manage your products: add, edit or remove items.</p>
+                <a asp-controller="Admin" asp-action="ManageProducts" class="btn btn-primary mt-auto w-75">Go</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Categories -->
+    <div class="col-md-4">
+        <div class="card h-100 text-center shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                <i class="bi bi-tags display-4 mb-3"></i>
+                <h5 class="card-title">Edit Categories</h5>
+                <p class="card-text">Add, remove, or rename product categories.</p>
+                <a asp-controller="Admin" asp-action="ManageCategories" class="btn btn-secondary mt-auto w-75">Go</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Orders -->
+    <div class="col-md-4">
+        <div class="card h-100 text-center shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                <i class="bi bi-bag-check display-4 mb-3"></i>
+                <h5 class="card-title">View Orders</h5>
+                <p class="card-text">Check all customer orders and their statuses.</p>
+                <a asp-controller="Admin" asp-action="ManageOrders" class="btn btn-success mt-auto w-75">Go</a>
+            </div>
+        </div>
+    </div>
+</div>
+

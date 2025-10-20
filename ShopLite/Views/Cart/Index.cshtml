@@ -1,0 +1,57 @@
+﻿@model ShopLite.Models.CartViewModel
+@{
+    ViewData["Title"] = "Your Cart";
+
+    decimal priceSum = 0;
+    for (int i = 0; i < Model.Products.Count; i++)
+    {
+        priceSum += Model.Products[i].Price * Model.Quantities[i];
+    }
+}
+
+
+<h1 class="mb-4">Your Cart</h1>
+@if (Model.Products != null && Model.Products.Any())
+{
+    <div class="row g-4 mb-4">
+        @for (int i = 0; i < Model.Products.Count; i++)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@Model.Products[i].ImageUrl" class="card-img-top" alt="@Model.Products[i].Name">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@Model.Products[i].Name</h5>
+                        <p class="card-text mb-1">Price: @Model.Products[i].Price.ToString("C")</p>
+                        <p class="card-text mb-3">Quantity: @Model.Quantities[i]</p>
+                        <p class="card-text fw-bold">Total: @((Model.Products[i].Price * Model.Quantities[i]).ToString("C"))</p>
+                        <form asp-action="Remove" asp-route-id="@Model.Products[i].ID" method="post" class="mt-auto">
+                            <button type="submit" class="btn btn-danger w-100">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <h4>Order Total: <strong>@priceSum.ToString("C")</strong></h4>
+        <div>
+            <form asp-action="Clear" method="post" class="d-inline">
+                <button type="submit" class="btn btn-warning me-2">Clear Cart</button>
+            </form>
+            <form asp-action="Checkout" method="post" class="d-inline">
+                <button type="submit" class="btn btn-success me-2">Place Order</button>
+            </form>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary d-inline text-nowrap me-2">Continue Shopping</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        Your shopping cart is empty.
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary d-inline text-nowrap me-2 mt-2">Continue Shopping</a>
+}
+
+

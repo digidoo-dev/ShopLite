@@ -1,0 +1,139 @@
+﻿@model IEnumerable<ShopLite.Models.Product>
+
+@{
+	ViewData["Title"] = "Manage Products";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<h2 class="mb-0">Manage Products</h2>
+	<a asp-controller="Admin" asp-action="CreateProduct" class="btn btn-success">
+		<i class="bi bi-plus-lg me-1"></i> Add new product
+	</a>
+</div>
+
+
+<!-- Sekcja Filtrowania -->
+<div class="card shadow-sm mb-4">
+	<div class="card-body">
+		<form asp-action="ManageProducts" method="get" class="row g-3 align-items-end">
+			<div class="col-md-4">
+				<label for="category" class="form-label small text-muted">Category</label>
+				<select id="category" name="category" class="form-select form-select-sm">
+					<option value="">All</option>
+					@foreach (var cat in ViewBag.Categories as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>())
+					{
+						if (ViewBag.SelectedCategory == cat)
+						{
+							<option value="@cat" selected>@cat</option>
+						}
+						else
+						{
+							<option value="@cat">@cat</option>
+						}
+					}
+				</select>
+			</div>
+
+			<div class="col-md-5">
+				<label for="q" class="form-label small text-muted">Search (name or ID)</label>
+				<input id="q" name="q" value="@(ViewBag.Search ?? "")" class="form-control form-control-sm" placeholder="e.g. keyboard or 123" />
+			</div>
+
+			<div class="col-md-3 d-flex gap-2">
+				<button type="submit" class="btn btn-primary w-100">Filter</button>
+				<a asp-action="ManageProducts" class="btn btn-outline-secondary w-100">Clear</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- Tabela Przedmiotów -->
+<div class="card shadow-sm">
+	<div class="card-body p-0">
+		<div class="table-responsive">
+			<table class="table table-hover mb-0 align-middle">
+				<thead class="table-light">
+					<tr>
+						<th style="width:9%;">ID</th>
+						<th>Name</th>
+						<th style="width:20%;">Category</th>
+						<th style="width:14%;">Price</th>
+						<th style="width:20%;">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model != null && Model.Any())
+					{
+						foreach (var item in Model)
+						{
+							<tr>
+								<td class="fw-semibold">@item.ID</td>
+								<td>
+									<div class="d-flex align-items-center">
+										@if (!string.IsNullOrEmpty(item.ImageUrl))
+										{
+											<img src="@item.ImageUrl" alt="@item.Name" class="rounded me-3" style="width:56px; height:56px; object-fit:cover;">
+										}
+										<div>
+											<div class="fw-medium">@item.Name</div>
+											<div class="small text-muted">@item.Description</div>
+										</div>
+									</div>
+								</td>
+								<td>@item.Category!.Name</td>
+								<td>@item.Price.ToString("C")</td>
+								<td>
+									<div class="d-flex gap-2">
+										<a asp-controller="Products" asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-primary">
+											<i class="bi bi-eye"></i> View
+										</a>
+										<a asp-action="EditProduct" asp-route-id="@item.ID" class="btn btn-sm btn-warning text-white">
+											<i class="bi bi-pencil-fill"></i> Edit
+										</a>
+										<form asp-action="DeleteProduct" asp-route-id="@item.ID" method="get">
+											<button type="submit" class="btn btn-sm btn-danger">
+												<i class="bi bi-trash"></i> Delete
+											</button>
+										</form>
+									</div>
+								</td>
+							</tr>
+						}
+					}
+					else
+					{
+						<tr>
+							<td colspan="6" class="text-center py-4 text-muted">No items to display.</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Pagination -->
+	<div class="card-footer bg-white">
+		<nav aria-label="Pages">
+			<ul class="pagination justify-content-end mb-0">
+				<li class="page-item @(ViewBag.PageNumber <= 1 ? "disabled" : "")">
+					<a class="page-link" href="@Url.Action("ManageProducts", new { page = ViewBag.PageNumber - 1, category = ViewBag.SelectedCategory, q = ViewBag.Search })" aria-label="Previous">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				</li>
+
+				@for (int p = 1; p <= (ViewBag.TotalPages ?? 1); p++)
+				{
+					<li class="page-item @(p == (ViewBag.PageNumber ?? 1) ? "active" : "")">
+						<a class="page-link" href="@Url.Action("ManageProducts", new { page = p, category = ViewBag.SelectedCategory, q = ViewBag.Search })">@p</a>
+					</li>
+				}
+
+				<li class="page-item @(ViewBag.PageNumber >= (ViewBag.TotalPages ?? 1) ? "disabled" : "")">
+					<a class="page-link" href="@Url.Action("ManageProducts", new { page = ViewBag.PageNumber + 1, category = ViewBag.SelectedCategory, q = ViewBag.Search })" aria-label="Next">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>

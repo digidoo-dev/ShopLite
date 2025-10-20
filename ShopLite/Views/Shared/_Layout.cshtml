@@ -1,0 +1,99 @@
+﻿@using ShopLite.Helpers;
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var cartItems = Context.Session.GetObject<List<CartItem>>("Cart");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ShopLite</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ShopLite.styles.css" asp-append-version="true" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand text-primary" href="/">ShopLite</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" asp-controller="Home" asp-action="Index">Shop</a></li>
+                </ul>
+
+                @if (currentController != "Admin")
+                {
+                    <form id="searchFilterForm" class="d-flex me-3" role="search" method="get" asp-controller="Home" asp-action="Index">
+                        <input name="search" id="searchInput" class="form-control form-control-sm me-2" type="search" placeholder="Search..." aria-label="Search" value="@(ViewData["SearchTerm"] == null ? "" : ViewData["SearchTerm"])">
+                    </form>
+                }
+                
+
+                <div class="d-flex align-items-center">
+                    @if (currentController != "Admin")
+                    {
+                        <a class="btn btn-primary btn-sm m-1" asp-controller="Cart" asp-action="Index">
+                            <i class="bi bi-cart3"></i>
+                            Cart <span id="cart-count" class="badge bg-light text-dark ms-1">@(cartItems == null || !cartItems.Any() ? 0 : cartItems.Count)</span>
+                        </a>
+                    }
+                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Admin" asp-action="Index">
+                        <i class="bi bi-unlock"></i>
+                        Admin Panel 
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    @if (currentController == "Home" && currentAction == "Index")
+    {
+        <!-- HERO -->
+        <div class="container my-4">
+            <div class="hero p-4 d-flex flex-column flex-lg-row align-items-center gap-3">
+                <div class="flex-grow-1">
+                    <h1 class="h3 mb-1">New products, fast delivery.</h1>
+                    <p class="mb-0 text-muted">Look through new items at amazing prices. ShopLite is a demo shop app with clear interface and a simple cart.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="#products" class="btn btn-primary">Check out our products</a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <main class="container mb-5 mt-5">
+        <div class="row gy-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-top py-4">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div>
+                <strong>ShopLite</strong> — shop demo. All images are exemplary.
+            </div>
+            <div class="text-muted small">© 2025 <span id="year"></span> ShopLite. All rights reserved.</div>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
