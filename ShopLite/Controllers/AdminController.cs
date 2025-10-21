@@ -354,13 +354,13 @@ public class AdminController : Controller
 
         if (dateFrom != null)
         {
-            sortedFilteredOrders = sortedFilteredOrders.Where(o => o.OrderDate >= dateFrom).ToList();
+            sortedFilteredOrders = sortedFilteredOrders.Where(o => o.OrderDate.Date >= dateFrom).ToList();
             ViewBag.DateFrom = dateFrom;
         }
 
         if (dateTo != null)
         {
-            sortedFilteredOrders = sortedFilteredOrders.Where(o => o.OrderDate <= dateTo).ToList();
+            sortedFilteredOrders = sortedFilteredOrders.Where(o => o.OrderDate.Date <= dateTo).ToList();
             ViewBag.DateTo = dateTo;
         }
 
