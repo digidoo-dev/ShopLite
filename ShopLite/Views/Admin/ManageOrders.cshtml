@@ -135,6 +135,32 @@
             </table>
         </div>
     </div>
+
+    <!-- Pagination -->
+    <div class="card-footer bg-white">
+        <nav aria-label="Pages">
+            <ul class="pagination justify-content-end mb-0">
+                <li class="page-item @(ViewBag.PageNumber <= 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("ManageOrders", new { page = ViewBag.PageNumber - 1, status = ViewBag.CurrentStatus, dateFrom = ViewBag.DateFrom, dateTo = ViewBag.DateTo, orderId = ViewBag.OrderId })" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                @for (int p = 1; p <= (ViewBag.TotalPages ?? 1); p++)
+                {
+                    <li class="page-item @(p == (ViewBag.PageNumber ?? 1) ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("ManageOrders", new { page = p, status = ViewBag.CurrentStatus, dateFrom = ViewBag.DateFrom, dateTo = ViewBag.DateTo, orderId = ViewBag.OrderId })">@p</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.PageNumber >= (ViewBag.TotalPages ?? 1) ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("ManageOrders", new { page = ViewBag.PageNumber + 1, status = ViewBag.CurrentStatus, dateFrom = ViewBag.DateFrom, dateTo = ViewBag.DateTo, orderId = ViewBag.OrderId })" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
 
 
@@ -167,5 +193,13 @@
         document.getElementById("clearFiltersBtn").addEventListener("click", function() {
             this.href += "#allOrders";
         });
+
+        const pageLinks = document.querySelectorAll("a.page-link").forEach(function(item, index) {
+            item.addEventListener("click", function() {
+            this.href += "#allOrders";
+            });
+        });
+        
+        
     </script>
 }

@@ -317,7 +317,7 @@ public class AdminController : Controller
 
 
     // GET: Admin/ManageOrders
-    public async Task<IActionResult> ManageOrders(string? status, DateTime? dateFrom, DateTime? dateTo, string? orderId)
+    public async Task<IActionResult> ManageOrders(string? status, DateTime? dateFrom, DateTime? dateTo, string? orderId, int? page)
     {
         var allOrders = await _context.Order.OrderDescending().Include(o => o.OrderProducts).ToListAsync();
 
@@ -369,6 +369,21 @@ public class AdminController : Controller
             sortedFilteredOrders = sortedFilteredOrders.Where(o => o.ID.ToString().Contains(orderId)).ToList();
             ViewBag.OrderId = orderId;
         }
+
+        // Pagination Data
+        int pageNumber = page ?? 1;
+        int pageSize = 20;
+        int totalPages = (int)Math.Ceiling((double)sortedFilteredOrders.Count / pageSize);
+
+        pageNumber = pageNumber > totalPages ? totalPages : pageNumber;
+
+        ViewBag.TotalPages = totalPages;
+        ViewBag.PageNumber = pageNumber;
+
+        // Pagination Process
+        sortedFilteredOrders = sortedFilteredOrders.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+
 
         var thisMonthOrders = allOrders.Where(o => o.OrderDate.Month == DateTime.Today.Month).ToList();
         
