@@ -47,11 +47,38 @@
 		</div>
 		<div class="d-flex gap-2 align-items-center">
 			<label class="small mb-0 me-2">Sort:</label>
-			<select id="sort-select" class="form-select form-select-sm" style="width:170px" onchange="applySorting()">
+			<select name="sort" form="searchFilterForm" id="sort-select" class="form-select form-select-sm" style="width:170px" onchange="applySorting()">
 				<option value='default'>Default</option>
-				<option value="priceUp">Price ↑</option>
-				<option value="priceDown">Price ↓</option>
-				<option value="nameAZ">Name A–Z</option>
+				@if (ViewBag.CurrentSorting == "priceUp")
+				{
+					<option value="priceUp" selected>Price ↑</option>
+				}
+				else
+				{
+					<option value="priceUp">Price ↑</option>
+				}
+
+
+				@if (ViewBag.CurrentSorting == "priceDown")
+				{
+					<option value="priceDown" selected>Price ↓</option>
+				}
+				else
+				{
+					<option value="priceDown">Price ↓</option>
+				}
+
+
+				@if (ViewBag.CurrentSorting == "nameAZ")
+				{
+					<option value="nameAZ" selected>Name A–Z</option>
+				}
+				else
+				{
+					<option value="nameAZ">Name A–Z</option>
+				}
+
+				
 			</select>
 		</div>
 	</div>
@@ -69,7 +96,7 @@
 	<nav aria-label="Pages">
 		<ul class="pagination justify-content-end mb-0">
 			<li class="page-item @(ViewBag.PageNumber <= 1 ? "disabled" : "")">
-				<a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber - 1, category = ViewBag.SelectedCategory, search = ViewBag.SearchTerm, minPrice = ViewBag.FilterMinPrice, maxPrice = ViewBag.FilterMaxPrice })" aria-label="Previous">
+				<a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber - 1, category = ViewBag.SelectedCategory, search = ViewBag.SearchTerm, minPrice = ViewBag.FilterMinPrice, maxPrice = ViewBag.FilterMaxPrice, sort = ViewBag.CurrentSorting })" aria-label="Previous">
 					<span aria-hidden="true">&laquo;</span>
 				</a>
 			</li>
@@ -77,12 +104,12 @@
 			@for (int p = 1; p <= (ViewBag.TotalPages ?? 1); p++)
 			{
 				<li class="page-item @(p == (ViewBag.PageNumber ?? 1) ? "active" : "")">
-					<a class="page-link" href="@Url.Action("Index", new { page = p, category = ViewBag.SelectedCategory, search = ViewBag.SearchTerm, minPrice = ViewBag.FilterMinPrice, maxPrice = ViewBag.FilterMaxPrice })">@p</a>
+					<a class="page-link" href="@Url.Action("Index", new { page = p, category = ViewBag.SelectedCategory, search = ViewBag.SearchTerm, minPrice = ViewBag.FilterMinPrice, maxPrice = ViewBag.FilterMaxPrice, sort = ViewBag.CurrentSorting })">@p</a>
 				</li>
 			}
 
 			<li class="page-item @(ViewBag.PageNumber >= (ViewBag.TotalPages ?? 1) ? "disabled" : "")">
-				<a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber + 1, category = ViewBag.SelectedCategory, search = ViewBag.SearchTerm, minPrice = ViewBag.FilterMinPrice, maxPrice = ViewBag.FilterMaxPrice })" aria-label="Next">
+				<a class="page-link" href="@Url.Action("Index", new { page = ViewBag.PageNumber + 1, category = ViewBag.SelectedCategory, search = ViewBag.SearchTerm, minPrice = ViewBag.FilterMinPrice, maxPrice = ViewBag.FilterMaxPrice, sort = ViewBag.CurrentSorting })" aria-label="Next">
 					<span aria-hidden="true">&raquo;</span>
 				</a>
 			</li>
@@ -108,24 +135,10 @@
 		}
 
 		function applySorting() {
-			const sel = document.getElementById("sort-select").value;
-			var sorted;
+			const form = document.getElementById("searchFilterForm");
+			form.submit();
 
-			switch (sel) {
-				case "default":
-					sorted = @Html.Raw(Json.Serialize(Model));
-					break;
-				case "priceUp":
-					sorted = products.sort((a,b) => a.price - b.price);
-					break;
-				case "priceDown":
-					sorted = products.sort((a,b) => b.price - a.price);
-					break;
-				case "nameAZ":
-					sorted = products.sort((a,b) => a.name.localeCompare(b.name));
-					break;
-			}
-			renderProducts(sorted);
+			const sel = document.getElementById("sort-select").value;
 		}
 
 		function renderProducts(list) {

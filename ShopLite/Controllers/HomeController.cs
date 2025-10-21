@@ -18,7 +18,7 @@ namespace ShopLite.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string? search, string? category, int? minPrice, int? maxPrice, int? page)
+        public async Task<IActionResult> Index(string? search, string? category, int? minPrice, int? maxPrice, string? sort, int? page)
         {
             var categories = await _context.Category.ToListAsync();
 
@@ -48,6 +48,23 @@ namespace ShopLite.Controllers
             {
                 model = model.Where(m => m.Price < maxPrice);
                 ViewData["FilterMaxPrice"] = maxPrice;
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                switch (sort)
+                {
+                    case "priceUp":
+                        model = model.OrderBy(p => (double)p.Price);
+                        break;
+                    case "priceDown":
+                        model = model.OrderByDescending(p => (double)p.Price);
+                        break;
+                    case "nameAZ":
+                        model = model.OrderBy(p => p.Name);
+                        break;
+                }
+                ViewData["CurrentSorting"] = sort;
             }
 
             var count = await model.CountAsync();
