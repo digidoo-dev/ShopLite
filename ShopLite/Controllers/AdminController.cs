@@ -390,7 +390,7 @@ public class AdminController : Controller
 
         
 
-        var last7DaysOrders = thisMonthOrders.Where(o => o.OrderDate > DateTime.Now.AddDays(-7)).ToList();
+        var last7DaysOrders = thisMonthOrders.Where(o => o.OrderDate > DateTime.Today.AddDays(-7)).ToList();
 
         if (last7DaysOrders == null || !last7DaysOrders.Any())
         {
@@ -409,8 +409,8 @@ public class AdminController : Controller
 
         for (int i = 0; i < 7; i++)
         {
-            var thisDayOrders = last7DaysOrders.Where(o => o.OrderDate > DateTime.Now.AddDays(-1 - i)).ToList();
-            last7DaysOrders = last7DaysOrders.Where(o => o.OrderDate <= DateTime.Now.AddDays(-1 - i)).ToList();
+            var thisDayOrders = last7DaysOrders.Where(o => o.OrderDate.Date > DateTime.Today.AddDays(-1 - i)).ToList();
+            last7DaysOrders = last7DaysOrders.Where(o => o.OrderDate.Date <= DateTime.Today.AddDays(-1 - i)).ToList();
             last7DaysOrderCounts.Add(thisDayOrders.Count);
         }
 
